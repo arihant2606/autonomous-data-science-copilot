@@ -153,18 +153,6 @@ Visualization  RAG Search
 
 ---
 
-# 📷 Application Preview
-
-## Home Screen
-
-> Add screenshot here
-
-```
-assets/home.png
-```
-
----
-
 ## Analysis Dashboard
 
 > Add screenshot here
