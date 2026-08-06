@@ -68,19 +68,32 @@ LLM_MODEL = "openrouter/free"
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 TRUSTED_DOC_SITES = ["pandas.pydata.org", "docs.python.org"]
 
-SYSTEM_PROMPT = """You are a senior data analyst AI. You write short, correct, self-contained Python code
-that analyzes a pandas DataFrame called `df` which is already loaded in memory.
+SYSTEM_PROMPT = """
+You are a senior data analyst AI.
+
+You analyze ONLY the pandas dataframe named df.
 
 Rules:
-- Only use pandas, numpy, matplotlib.pyplot (as plt), and seaborn (as sns).
-- Never read/write files and never re-load `df` — it already exists.
-- Never use confidence intervals or error bars in charts.
 
-- Always disable seaborn error bars (errorbar=None or ci=None).
-- Create clean business-style charts with a white background.
-- If you produce a chart, create it on a variable named `fig` (e.g. fig, ax = plt.subplots()) and do NOT call plt.show().
-- Store any text findings in a variable named `insight_text` (a plain-English string).
-- Return ONLY a Python code block — no explanations outside the code."""
+- Never fabricate facts.
+- Never invent numbers.
+- Never hallucinate.
+- Never assume trends.
+- Every conclusion must come directly from dataframe calculations.
+- If information cannot be computed from df, say:
+  "The requested insight cannot be determined from the uploaded dataset."
+
+- Use only pandas, numpy, matplotlib.pyplot (plt) and seaborn (sns).
+
+- Never read files.
+- Never reload df.
+- Never use plt.show().
+
+- Always create a matplotlib figure named fig.
+- Always create a string variable named insight_text.
+
+Return ONLY Python code.
+"""
 
 
 # --------------------------------------------------------------------------
@@ -119,13 +132,38 @@ def build_generation_prompt(question: str, data_profile: str) -> str:
     return f"""Dataset profile:
 {data_profile}
 
-User question: "{question}"
+User question:
+"{question}"
 
 Write Python code that answers this using the `df` DataFrame already in memory.
-Produce a matplotlib/seaborn chart in `fig` where relevant, and always set `insight_text`
-to a 2-4 sentence plain-English summary of what the data shows."""
 
+Requirements:
 
+- Perform all calculations using the dataframe only.
+- Never make assumptions.
+- Never invent numbers.
+- Never hallucinate.
+- Base every statement only on calculated results.
+- If the requested information cannot be calculated from the dataset,
+  set insight_text = "The requested insight cannot be determined from the uploaded dataset."
+
+- Create professional matplotlib/seaborn charts.
+- Store the figure in a variable named fig.
+- Do NOT call plt.show().
+
+Always create a variable named insight_text.
+
+The insight_text must:
+
+- Summarize only calculated results.
+- Include exact numbers when available.
+- Never guess future trends.
+- Never invent business recommendations unless explicitly requested.
+- Never mention anything not present in the dataframe.
+- Every number inside insight_text must be calculated from df.
+
+Return ONLY valid Python code.
+"""
 def build_fix_prompt(question, data_profile, previous_code, error_message, doc_context) -> str:
     return f"""The following code failed.
 
@@ -149,14 +187,19 @@ Rewrite the FULL corrected code from scratch (same rules: use existing `df`, put
 put summary text in `insight_text`). Return ONLY the corrected Python code."""
 
 
-def extract_code_block(text: str) -> str:
-    text = text.strip()
+def extract_code_block(text) -> str:
+    if text is None:
+        return ""
+
+    text = str(text).strip()
+
     if "```" in text:
         parts = text.split("```")
         for p in parts:
             if p.strip().startswith("python"):
                 return p.strip()[len("python"):].strip()
         return parts[1].strip() if len(parts) > 1 else text
+
     return text
 
 
@@ -204,8 +247,10 @@ def safe_exec(code_str: str, df: pd.DataFrame):
             exec(code_str, global_ns, local_ns)
             for ax in plt.gcf().axes:
                 for patch in ax.patches:
-                    patch.set_facecolor("#4472C4")
-                    patch.set_alpha(0.95)
+                    patch.set_facecolor("#4F46E5")
+                    patch.set_alpha(0.88)
+                    patch.set_edgecolor("white")
+                    patch.set_linewidth(1.5)
             
         return True, {
             "fig": local_ns.get("fig"),
@@ -624,15 +669,15 @@ if run_clicked:
         st.success("✅ Analysis Completed Successfully")
         st.subheader("📊 Analysis Result")
         if result.get("fig") is not None:
-            result["fig"].set_size_inches(16, 6)
+            result["fig"].set_size_inches(14, 7)
             result["fig"].tight_layout()
             
             for ax in result["fig"].axes:
                 ax.set_facecolor("white")
-                result["fig"].patch.set_facecolor("white")
+                result["fig"].patch.set_facecolor("#FCFCFD")
 
                 # Only light horizontal grid
-                ax.grid(axis="y", color="#EAEAEA", linestyle="-", linewidth=0.8)
+                ax.grid(axis="y", linestyle="--", linewidth=0.5, alpha=0.35)
 
                  # Remove unnecessary borders
                 ax.spines["top"].set_visible(False)
@@ -649,16 +694,55 @@ if run_clicked:
                 ax.title.set_fontweight("bold")
 
                 ax.xaxis.label.set_fontsize(12)
-                ax.yaxis.label.set_fontsize(12)   
-                
+                ax.yaxis.label.set_fontsize(12)
+                for container in ax.containers:
+                    try:
+                        ax.bar_label(
+                            container,
+                            fmt="%.0f",
+                            padding=4,
+                            fontsize=10,
+                            color="#374151",
+                            fontweight="bold",
+                        )
+                    except Exception:
+                        pass
             st.pyplot(result["fig"], use_container_width=True)
             img = io.BytesIO()
             result["fig"].savefig(img, format="png", dpi=300)
             img.seek(0)
-        if result.get("insight_text"):
-            st.markdown(f"**Insight:** {result['insight_text']}")
+            st.markdown("""
+                        <style>
+                        .insight-card{
+                            background: linear-gradient(135deg,#F8FAFC,#EEF6FF);
+                            border-left:6px solid #2563EB;
+                            padding:20px;
+                            border-radius:16px;
+                            box-shadow:0 8px 22px rgba(37,99,235,.08);
+                            margin-top:10px;
+                            margin-bottom:12px;
+                            font-size:17px;
+                            line-height:1.8;
+                            color:#334155;
+                            }
+                            </style>
+                             """, unsafe_allow_html=True)
+            insight = result.get("insight_text", "").strip()
+            if len(insight) > 700:
+                insight = insight[:700] + "..."
+            if insight:   
+                st.markdown(
+                    f"""
+                    <div class="insight-card">
+                    {insight}
+                    </div>
+                    """,
+                    unsafe_allow_html=True   
+                )
+            
         if result.get("stdout"):
             st.text(result["stdout"])
+                        
     else:
         st.error(f"Could not produce a working result after {outcome['attempts']} attempts.")
 
