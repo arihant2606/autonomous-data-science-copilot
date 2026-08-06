@@ -1,6 +1,25 @@
 <div align="center">
 
 # 📊 Autonomous Data Science Co-Pilot
+<div align="center">
+
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Streamlit-success?style=for-the-badge)](https://autonomous-datascience-copilot.streamlit.app/)
+![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python)
+![Streamlit](https://img.shields.io/badge/Streamlit-Web_App-red?style=for-the-badge&logo=streamlit)
+![OpenRouter](https://img.shields.io/badge/OpenRouter-LLM-purple?style=for-the-badge)
+![MIT License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
+</div>
+
+---
+
+# 🌐 Live Demo
+
+### 🚀 Try the Application
+
+https://autonomous-datascience-copilot.streamlit.app/
+
+---
 
 ### AI-Powered Autonomous Data Analysis Agent with Self-Healing Code Execution
 
