@@ -220,14 +220,20 @@ Autonomous-Data-Science-CoPilot
 # ⚙️ Installation
 
 ```bash
-git clone https://github.com/yourusername/Autonomous-Data-Science-CoPilot.git
+git clone https://github.com/arihant2606/autonomous-data-science-copilot.git
 
+cd autonomous-data-science-copilot
+
+pip install -r requirements.txt
+
+streamlit run app.py
 cd Autonomous-Data-Science-CoPilot
 
 pip install -r requirements.txt
 
 streamlit run app.py
 ```
+
 
 ---
 
@@ -295,13 +301,18 @@ making it a complete AI-powered autonomous analytics assistant.
 
 ## Arihant Jain
 
-B.Tech Computer Science Engineering
+**B.Tech Computer Science Engineering**
 
-Data Science | AI | Full Stack Development
+🚀 Data Science • Artificial Intelligence • Full Stack Development
 
-GitHub: https://github.com/arihant2606
+🌐 Live Demo  
+https://autonomous-datascience-copilot.streamlit.app/
 
-LinkedIn: https://linkedin.com/in/arihant-jain-b52a08289
+💻 GitHub  
+https://github.com/arihant2606
+
+🔗 LinkedIn  
+https://linkedin.com/in/arihant-jain-b52a08289
 
 ---
 
