@@ -153,36 +153,6 @@ Visualization  RAG Search
 
 ---
 
-## Analysis Dashboard
-
-> Add screenshot here
-
-```
-assets/dashboard.png
-```
-
----
-
-## Generated Visualization
-
-> Add screenshot here
-
-```
-assets/chart.png
-```
-
----
-
-## Self-Healing Logs
-
-> Add screenshot here
-
-```
-assets/self_healing.png
-```
-
----
-
 # 💼 Business Use Cases
 
 | Use Case | Description |
